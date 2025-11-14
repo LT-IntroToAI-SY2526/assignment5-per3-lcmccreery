@@ -1,4 +1,5 @@
 import copy  # to make a deepcopy of the board
+import time
 from typing import List, Any, Tuple
 
 # import Stack and Queue classes for BFS/DFS
@@ -190,18 +191,23 @@ def DFS(state: Board) -> Board:
     """
     the_stack = Stack()
     the_stack.push(state)
+    iterations = 0
+    start_time = time.time()
 
     while not the_stack.is_empty():
+        iterations += 1
+        # print(the_stack)
         current_board: Board = the_stack.pop()
         # print(current_board)
         if current_board.goal_test():
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"DFS took {iterations} iterations in {elapsed_time: .4f} seconds")
             return current_board
         if not current_board.failure_test():
             row, col = current_board.find_most_constrained_cell()
-            print(row, col)
             # print(row, col)
             possible_values = current_board.rows[row][col]
-            print(possible_values)
             # print(possible_values)
             for val in possible_values:
                 new_board: Board = copy.deepcopy(current_board)
@@ -211,36 +217,38 @@ def DFS(state: Board) -> Board:
 
 def BFS(state: Board) -> Board:
     """Performs a breadth first search. Takes a Board and attempts to assign values to
-    the most constrained cells level by level until a solution is reached or
-    no valid states remain.
+    most constrained cells until a solution is reached or a mistake has been made at
+    which point it backtracks.
 
     Args:
-        state - an instance of the Board class to solve.
+        state - an instance of the Board class to solve, need to find most constrained
+            cell and attempt an assignment
 
     Returns:
-        either None in the case of invalid input or a solved board.
+        either None in the case of invalid input or a solved board
     """
-    the_queue = Queue()
-    the_queue.enqueue(state)
+    pass
+    the_queue = Queue([state])
+    iterations = 0
+    start_time = time.time()
 
     while not the_queue.is_empty():
-        current_board: Board = the_queue.dequeue()
-
+        iterations += 1
+        current_board: Board = the_queue.pop()
         if current_board.goal_test():
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"BFS took {iterations} iterations in {elapsed_time: .4f} seconds")
             return current_board
-
+        row, col = current_board.find_most_constrained_cell()
+        possible_values = current_board.rows[row][col]
         if not current_board.failure_test():
-            row, col = current_board.find_most_constrained_cell()
-            possible_values = current_board.rows[row][col]
-
             for val in possible_values:
-                new_board: Board = copy.deepcopy(current_board)
+                new_board = copy.deepcopy(current_board)
                 new_board.update(row, col, val)
-                the_queue.enqueue(new_board)
+                the_queue.push(new_board)
 
     return None
-
-
 
 if __name__ == "__main__":
     # uncomment the below lines once you've implemented the board class
@@ -394,7 +402,9 @@ if __name__ == "__main__":
     print("<<<<<<<<<<<<<< Testing BFS on First Game >>>>>>>>>>>>>>")
 
     test_dfs_or_bfs(False, first_moves)
+    # test_dfs_or_bfs(False, first_moves)
 
     print("<<<<<<<<<<<<<< Testing BFS on Second Game >>>>>>>>>>>>>>")
 
     test_dfs_or_bfs(False, second_moves)
+    # test_dfs_or_bfs(False, second_moves)
